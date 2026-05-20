@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MorseFlix Pro Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --netflix-red: #e50914;
+      --dark-bg: #141414;
+      --light-bg: #f5f5f5;
+      --card-dark: #181818;
+      --card-light: #ffffff;
+      --text-dark: #ffffff;
+      --text-light: #141414;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-dark);
+      background: var(--dark-bg);
+      background-image: linear-gradient(to bottom, rgba(0,0,0,0.8), #141414),
+        url('https://wallpapercave.com/wp/wp7418473.jpg');
+      background-size: cover;
+      background-attachment: fixed;
+      transition: all 0.5s ease;
+    }
+
+    body.light-mode {
+      background: var(--light-bg);
+      color: var(--text-light);
+    }
+
+    header {
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 3px;
+      color: var(--netflix-red);
+      margin-top: 20px;
+      text-shadow: 0 0 25px rgba(229, 9, 20, 0.8);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .controls-top {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    button {
+      background-color: var(--netflix-red);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 15px rgba(229, 9, 20, 0.9);
+    }
+
+    button.ghost {
+      background: transparent;
+      border: 1px solid var(--netflix-red);
+      color: var(--netflix-red);
+    }
+
+    .converter-box {
+      background-color: rgba(24, 24, 24, 0.9);
+      border-radius: 12px;
+      padding: 20px;
+      width: min(800px, 95%);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      transition: all 0.5s ease;
+    }
+
+    body.light-mode .converter-box {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text-light);
+    }
+
+    textarea, .output {
+      width: 100%;
+      background-color: #222;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: white;
+      padding: 12px;
+      font-size: 1rem;
+      resize: none;
+      margin-bottom: 15px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .output {
+      min-height: 80px;
+      white-space: pre-wrap;
+      color: var(--netflix-red);
+    }
+
+    body.light-mode textarea, body.light-mode .output {
+      background: #f0f0f0;
+      color: #141414;
+      border: 1px solid #ccc;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      color: #999;
+    }
+
+    .blink-light {
+      width: 16px;
+      height: 16px;
+      background-color: var(--netflix-red);
+      border-radius: 50%;
+      display: none;
+      box-shadow: 0 0 10px var(--netflix-red);
+    }
+
+    .morse-table {
+      margin-top: 40px;
+      background: rgba(24,24,24,0.9);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 800px;
+      width: 95%;
+      color: white;
+      overflow-y: auto;
+    }
+
+    body.light-mode .morse-table {
+      background: rgba(255,255,255,0.9);
+      color: #141414;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    th, td {
+      border-bottom: 1px solid #333;
+      padding: 8px;
+    }
+
+    th {
+      color: var(--netflix-red);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <header id="title">MORSEFLIX</header>
+
+  <div class="container">
+    <div class="controls-top">
+      <!-- Sound button removed -->
+      <button id="modeToggle" class="ghost">🌗 Mode</button>
+    </div>
+
+    <div class="converter-box">
+      <textarea id="input" rows="5" placeholder="Type your text or Morse code..."></textarea>
+      <div class="output" id="output"></div>
+      <div class="controls">
+        <button id="toMorse">Text → Morse</button>
+        <button id="toText">Morse → Text</button>
+        <button class="ghost" id="play">Play</button>
+        <button class="ghost" id="copy">Copy</button>
+        <button class="ghost" id="clear">Clear</button>
+      </div>
+      <div class="status-bar">
+        <span>Status:</span><span id="status">Idle</span>
+        <div class="blink-light" id="blinkLight"></div>
+      </div>
+    </div>
+
+    <div class="morse-table">
+      <h3 style="text-align:center;color:var(--netflix-red);font-family:'Bebas Neue',sans-serif;">Morse Code Chart</h3>
+      <table id="morseChart"></table>
+    </div>
+  </div>
+
+  <footer>Created by Sarvesh 🎬 | MorseFlix Pro Edition 2025</footer>
+
+  <script>
+    // --- Morse Conversion Setup ---
+    const morseMap = {
+      'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+      'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+      'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+      'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+      'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--',
+      '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+      '9': '----.', '0': '-----'
+    };
+    const revMap = Object.fromEntries(Object.entries(morseMap).map(([k, v]) => [v, k]));
+
+    const inputEl = document.getElementById('input');
+    const outputEl = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+    const blinkLight = document.getElementById('blinkLight');
+    const chartEl = document.getElementById('morseChart');
+
+    function showChart() {
+      chartEl.innerHTML = "<tr><th>Character</th><th>Morse</th></tr>" +
+        Object.entries(morseMap).map(([k,v]) => `<tr><td>${k}</td><td style="color:#e50914">${v}</td></tr>`).join('');
+    }
+    showChart();
+
+    document.getElementById('toMorse').onclick = () => {
+      const text = inputEl.value.toUpperCase().trim();
+      outputEl.textContent = text.split('').map(ch => morseMap[ch] || '?').join(' ');
+      statusEl.textContent = "Converted to Morse";
+      gsap.from(outputEl, {opacity:0, duration:0.5});
+    };
+
+    document.getElementById('toText').onclick = () => {
+      const morse = inputEl.value.trim();
+      outputEl.textContent = morse.split(' ').map(code => revMap[code] || '').join('');
+      statusEl.textContent = "Converted to Text";
+      gsap.from(outputEl, {opacity:0, duration:0.5});
+    };
+
+    document.getElementById('clear').onclick = () => {
+      inputEl.value = '';
+      outputEl.textContent = '';
+      statusEl.textContent = 'Cleared';
+    };
+
+    document.getElementById('copy').onclick = async () => {
+      await navigator.clipboard.writeText(outputEl.textContent);
+      alert("Copied!");
+    };
+
+    document.getElementById('play').onclick = () => {
+      const morse = outputEl.textContent.trim() || inputEl.value.trim();
+      if (!morse) return;
+      blinkLight.style.display = 'inline-block';
+      playMorse(morse, () => blinkLight.style.display = 'none');
+    };
+
+    function playMorse(seq, done) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      let t = ctx.currentTime;
+      const parts = seq.split(' ');
+      parts.forEach(symbol => {
+        if (symbol === '/') { t += 0.7; return; }
+        for (let s of symbol) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 700;
+          const d = s === '.' ? 0.1 : 0.3;
+          gain.gain.setValueAtTime(0.2, t);
+          osc.start(t);
+          osc.stop(t + d);
+          t += d + 0.1;
+        }
+        t += 0.3;
+      });
+      setTimeout(done, (t - ctx.currentTime) * 1000 + 300);
+    }
+
+    // --- Mode Switch ---
+    document.getElementById('modeToggle').onclick = () => {
+      document.body.classList.toggle('light-mode');
+    };
+
+    // --- Animations ---
+    gsap.from("#title", {y:-100, opacity:0, duration:1.2, ease:"bounce"});
+    gsap.from(".converter-box", {opacity:0, scale:0.9, duration:1});
+  </script>
+</body>
+</html>
