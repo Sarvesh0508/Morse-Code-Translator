@@ -3,221 +3,822 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MorseFlix Pro Edition</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>MorseFlix Pro - Interactive Translator & Synthesizer</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- GSAP for animations -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- FontAwesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
   <style>
     :root {
-      --netflix-red: #e50914;
-      --dark-bg: #141414;
-      --light-bg: #f5f5f5;
-      --card-dark: #181818;
-      --card-light: #ffffff;
-      --text-dark: #ffffff;
-      --text-light: #141414;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      color: var(--text-dark);
-      background: var(--dark-bg);
-      background-image: linear-gradient(to bottom, rgba(0,0,0,0.8), #141414),
-        url('https://wallpapercave.com/wp/wp7418473.jpg');
-      background-size: cover;
-      background-attachment: fixed;
-      transition: all 0.5s ease;
+      --primary: #e50914;
+      --primary-hover: #f40a16;
+      --primary-glow: rgba(229, 9, 20, 0.4);
+      --bg-dark: #0a0a0a;
+      --card-bg-dark: rgba(20, 20, 20, 0.75);
+      --border-dark: rgba(255, 255, 255, 0.08);
+      --text-main-dark: #f5f5f7;
+      --text-sub-dark: #a1a1a6;
+      
+      --bg-light: #f5f5f7;
+      --card-bg-light: rgba(255, 255, 255, 0.8);
+      --border-light: rgba(0, 0, 0, 0.08);
+      --text-main-light: #1d1d1f;
+      --text-sub-light: #86868b;
+      
+      /* Active state styles */
+      --bg: var(--bg-dark);
+      --card-bg: var(--card-bg-dark);
+      --border: var(--border-dark);
+      --text-main: var(--text-main-dark);
+      --text-sub: var(--text-sub-dark);
+      --neon-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     }
 
     body.light-mode {
-      background: var(--light-bg);
-      color: var(--text-light);
+      --bg: var(--bg-light);
+      --card-bg: var(--card-bg-light);
+      --border: var(--border-light);
+      --text-main: var(--text-main-light);
+      --text-sub: var(--text-sub-light);
+      --neon-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
     }
 
-    header {
-      text-align: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 3rem;
-      letter-spacing: 3px;
-      color: var(--netflix-red);
-      margin-top: 20px;
-      text-shadow: 0 0 25px rgba(229, 9, 20, 0.8);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    .container {
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 30px;
+      overflow-x: hidden;
+      transition: background-color 0.5s ease, color 0.5s ease;
+      background-image: radial-gradient(circle at 10% 20%, rgba(229, 9, 20, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(229, 9, 20, 0.05) 0%, transparent 50%);
     }
 
-    .controls-top {
+    body.light-mode {
+      background-image: radial-gradient(circle at 10% 20%, rgba(229, 9, 20, 0.04) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(229, 9, 20, 0.02) 0%, transparent 50%);
+    }
+
+    /* Header Design */
+    header {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 10, 0.2);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    body.light-mode header {
+      background: rgba(245, 245, 247, 0.2);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
       gap: 10px;
-      justify-content: center;
-      margin-bottom: 25px;
     }
 
-    button {
-      background-color: var(--netflix-red);
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      letter-spacing: 1px;
+      color: var(--primary);
+      text-decoration: none;
+      text-shadow: 0 0 20px var(--primary-glow);
+      display: inline-block;
+    }
+
+    .badge-pro {
+      background: var(--primary);
       color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.25s ease;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      vertical-align: super;
     }
 
-    button:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 15px rgba(229, 9, 20, 0.9);
+    .header-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
     }
 
-    button.ghost {
-      background: transparent;
-      border: 1px solid var(--netflix-red);
-      color: var(--netflix-red);
-    }
-
-    .converter-box {
-      background-color: rgba(24, 24, 24, 0.9);
-      border-radius: 12px;
-      padding: 20px;
-      width: min(800px, 95%);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(6px);
-      transition: all 0.5s ease;
-    }
-
-    body.light-mode .converter-box {
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--text-light);
-    }
-
-    textarea, .output {
+    /* Layout Containers */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
       width: 100%;
-      background-color: #222;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: white;
-      padding: 12px;
-      font-size: 1rem;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 30px;
+      flex-grow: 1;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Glassmorphic Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--neon-glow);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .card-title i {
+      color: var(--primary);
+    }
+
+    /* Inputs and Controls */
+    .textarea-container {
+      position: relative;
+      width: 100%;
+    }
+
+    textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-main);
+      padding: 16px;
+      font-size: 1.05rem;
+      font-family: inherit;
       resize: none;
-      margin-bottom: 15px;
-      transition: background 0.3s ease, color 0.3s ease;
+      min-height: 140px;
+      transition: all 0.3s ease;
+      outline: none;
     }
 
-    .output {
-      min-height: 80px;
+    body.light-mode textarea {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(229, 9, 20, 0.25);
+    }
+
+    .input-badge {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Output Card styling */
+    .output-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 100px;
+      font-family: monospace;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      word-break: break-all;
       white-space: pre-wrap;
-      color: var(--netflix-red);
+      position: relative;
+      transition: background-color 0.5s ease;
     }
 
-    body.light-mode textarea, body.light-mode .output {
-      background: #f0f0f0;
-      color: #141414;
-      border: 1px solid #ccc;
+    body.light-mode .output-box {
+      background: rgba(255, 255, 255, 0.3);
     }
 
-    .controls {
+    .output-placeholder {
+      color: var(--text-sub);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    /* Buttons */
+    .btn-group {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      justify-content: center;
     }
 
-    .status-bar {
-      display: flex;
-      justify-content: center;
+    button, .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin-top: 12px;
-      color: #999;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
     }
 
-    .blink-light {
-      width: 16px;
-      height: 16px;
-      background-color: var(--netflix-red);
-      border-radius: 50%;
-      display: none;
-      box-shadow: 0 0 10px var(--netflix-red);
+    button:hover, .btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--primary-glow);
     }
 
-    .morse-table {
-      margin-top: 40px;
-      background: rgba(24,24,24,0.9);
-      border-radius: 12px;
-      padding: 20px;
-      max-width: 800px;
-      width: 95%;
-      color: white;
-      overflow-y: auto;
+    button:active, .btn:active {
+      transform: translateY(0);
     }
 
-    body.light-mode .morse-table {
-      background: rgba(255,255,255,0.9);
-      color: #141414;
+    button.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border);
     }
 
-    table {
+    button.secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+
+    body.light-mode button.secondary {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    body.light-mode button.secondary:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Custom Switcher/Sliders Controls */
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-sub);
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
       width: 100%;
-      border-collapse: collapse;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.15);
+      outline: none;
+      transition: background 0.3s;
+    }
+
+    body.light-mode input[type="range"] {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--primary-glow);
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .slider-val {
+      font-size: 0.9rem;
+      font-weight: 600;
+      min-width: 45px;
+      text-align: right;
+    }
+
+    .synth-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px 20px;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 5px;
+    }
+
+    body.light-mode .synth-settings-grid {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Dynamic Visual Flasher (LED) */
+    .led-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 10px;
+    }
+
+    body.light-mode .led-container {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .led-light {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #333;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+      transition: all 0.05s ease;
+    }
+
+    .led-light.active {
+      background-color: var(--primary);
+      border-color: #ff6b72;
+      box-shadow: 0 0 25px #e50914, 0 0 50px #e50914, inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    }
+
+    .led-text {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-sub);
+    }
+
+    .status-text {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Saved History List */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    body.light-mode .history-item {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    body.light-mode .history-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .history-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+
+    .history-orig {
+      font-weight: 600;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-trans {
+      font-family: monospace;
+      color: var(--primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .history-btn {
+      background: transparent;
+      border: none;
+      padding: 5px;
+      color: var(--text-sub);
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .history-btn:hover {
+      color: var(--primary);
+      background: rgba(229, 9, 20, 0.1);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .no-history {
       text-align: center;
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      padding: 15px;
     }
 
-    th, td {
-      border-bottom: 1px solid #333;
+    /* Filter/Search for Cheat sheet */
+    .search-container {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .search-container i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-sub);
+      font-size: 0.9rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 12px 10px 35px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-main);
+      outline: none;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+
+    body.light-mode .search-input {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .cheat-tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab-btn.active:hover {
+      background: var(--primary);
+    }
+
+    /* Cheat Sheet Grid */
+    .cheat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .cheat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.25s ease;
     }
 
-    th {
-      color: var(--netflix-red);
+    body.light-mode .cheat-card {
+      background: rgba(0, 0, 0, 0.02);
     }
 
+    .cheat-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .cheat-char {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .cheat-morse {
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+    }
+
+    /* Toast Notification Overlay */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 20, 20, 0.9);
+      border: 1px solid var(--primary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(229, 9, 20, 0.25);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+    }
+
+    /* Footer design */
     footer {
       text-align: center;
-      padding: 20px;
-      color: #aaa;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: auto;
+      background: rgba(10, 10, 10, 0.1);
     }
   </style>
 </head>
 <body>
-  <header id="title">MORSEFLIX</header>
 
-  <div class="container">
-    <div class="controls-top">
-      <!-- Sound button removed -->
-      <button id="modeToggle" class="ghost">🌗 Mode</button>
+  <!-- Web App Header -->
+  <header>
+    <div class="logo-container">
+      <a href="#" class="logo">MORSEFLIX</a>
+      <span class="badge-pro">Pro Edition</span>
     </div>
+    <div class="header-actions">
+      <button id="themeToggle" class="secondary" title="Toggle Light/Dark Theme">
+        <i class="fas fa-circle-half-stroke"></i>
+      </button>
+    </div>
+  </header>
 
-    <div class="converter-box">
-      <textarea id="input" rows="5" placeholder="Type your text or Morse code..."></textarea>
-      <div class="output" id="output"></div>
-      <div class="controls">
-        <button id="toMorse">Text → Morse</button>
-        <button id="toText">Morse → Text</button>
-        <button class="ghost" id="play">Play</button>
-        <button class="ghost" id="copy">Copy</button>
-        <button class="ghost" id="clear">Clear</button>
+  <!-- Main Grid Workspace -->
+  <main class="container">
+    
+    <!-- Left Workspace: Translator Panel -->
+    <div class="card" id="translatorCard">
+      <div class="card-title">
+        <span><i class="fa-solid fa-language"></i> Interactive Translation Engine</span>
+        <button id="clearBtn" class="secondary" style="padding: 6px 12px; font-size: 0.75rem;">
+          <i class="fa-solid fa-trash-can"></i> Clear All
+        </button>
       </div>
-      <div class="status-bar">
-        <span>Status:</span><span id="status">Idle</span>
-        <div class="blink-light" id="blinkLight"></div>
+      
+      <!-- Input Section -->
+      <div class="control-row">
+        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-sub);">Source Input</label>
+        <div class="textarea-container">
+          <textarea id="inputText" placeholder="Type normal English text here... (or type Morse code using . and -)"></textarea>
+          <span class="input-badge" id="detectBadge">Auto-Detecting</span>
+        </div>
+      </div>
+      
+      <!-- Output Section -->
+      <div class="control-row">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-sub);" id="outputLabel">Morse Code Output</label>
+          <div class="btn-group" style="gap: 5px;">
+            <button id="saveBtn" class="secondary" style="padding: 5px 10px; font-size: 0.75rem;" title="Save to History">
+              <i class="fa-solid fa-bookmark"></i> Save
+            </button>
+            <button id="copyBtn" class="secondary" style="padding: 5px 10px; font-size: 0.75rem;" title="Copy to Clipboard">
+              <i class="fa-solid fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+        <div class="output-box" id="outputText">
+          <span class="output-placeholder">Start typing to see live conversion...</span>
+        </div>
+      </div>
+
+      <!-- Audio Settings Panel -->
+      <div class="synth-settings-grid">
+        <!-- WPM Slider -->
+        <div class="control-row">
+          <div class="control-header">
+            <span>SPEED (WPM)</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="wpmSlider" min="10" max="45" value="20">
+            <span class="slider-val" id="wpmVal">20 WPM</span>
+          </div>
+        </div>
+
+        <!-- Frequency/Pitch Slider -->
+        <div class="control-row">
+          <div class="control-header">
+            <span>PITCH (Hz)</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="freqSlider" min="300" max="1000" value="700" step="50">
+            <span class="slider-val" id="freqVal">700 Hz</span>
+          </div>
+        </div>
+
+        <!-- Volume Slider -->
+        <div class="control-row">
+          <div class="control-header">
+            <span>VOLUME</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="volSlider" min="0" max="100" value="50">
+            <span class="slider-val" id="volVal">50%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="btn-group" style="margin-top: 10px;">
+        <button id="playBtn">
+          <i class="fa-solid fa-play"></i> Play Audio
+        </button>
+        <button id="stopBtn" class="secondary">
+          <i class="fa-solid fa-stop"></i> Stop
+        </button>
+        <button id="exportWavBtn" class="secondary">
+          <i class="fa-solid fa-download"></i> Download WAV
+        </button>
+      </div>
+
+      <!-- LED Sync Module -->
+      <div class="led-container">
+        <div class="led-light" id="blinkLight"></div>
+        <div class="led-text">
+          Status: <span class="status-text" id="statusText">Idle</span>
+        </div>
       </div>
     </div>
 
-    <div class="morse-table">
-      <h3 style="text-align:center;color:var(--netflix-red);font-family:'Bebas Neue',sans-serif;">Morse Code Chart</h3>
-      <table id="morseChart"></table>
+    <!-- Right Workspace: Settings, History & Dictionary -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+      
+      <!-- Card: History Log -->
+      <div class="card">
+        <div class="card-title">
+          <span><i class="fa-solid fa-history"></i> Saved Translation Log</span>
+          <button id="clearHistoryBtn" class="secondary" style="padding: 4px 8px; font-size: 0.7rem; border-color: transparent;">
+            Clear Log
+          </button>
+        </div>
+        <div class="history-list" id="historyList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Card: Interactive Dictionary -->
+      <div class="card">
+        <div class="card-title">
+          <span><i class="fa-solid fa-book-open"></i> Morse Code Dictionary</span>
+        </div>
+        
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" class="search-input" id="searchDict" placeholder="Search characters (e.g. A, S, 5)...">
+        </div>
+
+        <div class="cheat-tabs">
+          <button class="tab-btn active" data-tab="all">All</button>
+          <button class="tab-btn" data-tab="letters">A-Z</button>
+          <button class="tab-btn" data-tab="numbers">0-9</button>
+          <button class="tab-btn" data-tab="symbols">Punctuation</button>
+        </div>
+
+        <div class="cheat-grid" id="cheatGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
     </div>
+  </main>
+
+  <!-- Toast overlay -->
+  <div class="toast" id="toast">
+    <i class="fa-solid fa-circle-check" style="color:#2ecc71;"></i>
+    <span id="toastMsg">Action completed!</span>
   </div>
 
-  <footer>Created by Sarvesh 🎬 | MorseFlix Pro Edition 2025</footer>
+  <!-- Footer -->
+  <footer>
+    Created by Sarvesh 🎬 | MorseFlix Pro Edition © 2026
+  </footer>
 
   <script>
-    // --- Morse Conversion Setup ---
+    // --- Morse Code Mapping Data ---
     const morseMap = {
       'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
       'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
@@ -225,85 +826,554 @@
       'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
       'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--',
       '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
-      '9': '----.', '0': '-----'
+      '9': '----.', '0': '-----',
+      '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--',
+      '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...', ':': '---...',
+      ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '_': '..--.-',
+      '"': '.-..-.', '$': '...-..-', '@': '.--.-.', ' ': '/'
     };
     const revMap = Object.fromEntries(Object.entries(morseMap).map(([k, v]) => [v, k]));
 
-    const inputEl = document.getElementById('input');
-    const outputEl = document.getElementById('output');
-    const statusEl = document.getElementById('status');
+    // --- DOM Elements ---
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const detectBadge = document.getElementById('detectBadge');
+    const outputLabel = document.getElementById('outputLabel');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const exportWavBtn = document.getElementById('exportWavBtn');
     const blinkLight = document.getElementById('blinkLight');
-    const chartEl = document.getElementById('morseChart');
+    const statusText = document.getElementById('statusText');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const themeToggle = document.getElementById('themeToggle');
+    const searchDict = document.getElementById('searchDict');
+    const cheatGrid = document.getElementById('cheatGrid');
+    const historyList = document.getElementById('historyList');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    
+    // Sliders
+    const wpmSlider = document.getElementById('wpmSlider');
+    const wpmVal = document.getElementById('wpmVal');
+    const freqSlider = document.getElementById('freqSlider');
+    const freqVal = document.getElementById('freqVal');
+    const volSlider = document.getElementById('volSlider');
+    const volVal = document.getElementById('volVal');
 
-    function showChart() {
-      chartEl.innerHTML = "<tr><th>Character</th><th>Morse</th></tr>" +
-        Object.entries(morseMap).map(([k,v]) => `<tr><td>${k}</td><td style="color:#e50914">${v}</td></tr>`).join('');
+    // --- Global State ---
+    let currentInputMode = 'text'; // 'text' or 'morse'
+    let currentTranslation = '';
+    let playbackTimeouts = [];
+    let activeNodes = [];
+    let audioCtx = null;
+    let history = JSON.parse(localStorage.getItem('morseflix_history')) || [];
+
+    // --- Auto-Translate & Detection Engine ---
+    function isMorse(str) {
+      if (!str.trim()) return false;
+      // Checks if the text consists strictly of dots, dashes, slashes, spaces, and newlines
+      return /^[.\-\s\/]+$/.test(str.trim());
     }
-    showChart();
 
-    document.getElementById('toMorse').onclick = () => {
-      const text = inputEl.value.toUpperCase().trim();
-      outputEl.textContent = text.split('').map(ch => morseMap[ch] || '?').join(' ');
-      statusEl.textContent = "Converted to Morse";
-      gsap.from(outputEl, {opacity:0, duration:0.5});
-    };
+    function translateTextToMorse(text) {
+      return text
+        .toUpperCase()
+        .split('')
+        .map(char => {
+          if (char === '\n') return '\n';
+          return morseMap[char] || '';
+        })
+        .filter((val, i, arr) => val !== '' || arr[i-1] === '\n')
+        .join(' ');
+    }
 
-    document.getElementById('toText').onclick = () => {
-      const morse = inputEl.value.trim();
-      outputEl.textContent = morse.split(' ').map(code => revMap[code] || '').join('');
-      statusEl.textContent = "Converted to Text";
-      gsap.from(outputEl, {opacity:0, duration:0.5});
-    };
+    function translateMorseToText(morse) {
+      return morse
+        .split('\n')
+        .map(line => {
+          return line
+            .trim()
+            .split(/\s+/)
+            .map(symbol => {
+              if (symbol === '/') return ' ';
+              return revMap[symbol] || '?';
+            })
+            .join('');
+        })
+        .join('\n');
+    }
 
-    document.getElementById('clear').onclick = () => {
-      inputEl.value = '';
-      outputEl.textContent = '';
-      statusEl.textContent = 'Cleared';
-    };
+    function runTranslation() {
+      const input = inputText.value;
+      
+      if (!input.trim()) {
+        outputText.innerHTML = `<span class="output-placeholder">Start typing to see live conversion...</span>`;
+        detectBadge.textContent = 'Auto-Detecting';
+        currentTranslation = '';
+        return;
+      }
 
-    document.getElementById('copy').onclick = async () => {
-      await navigator.clipboard.writeText(outputEl.textContent);
-      alert("Copied!");
-    };
+      if (isMorse(input)) {
+        currentInputMode = 'morse';
+        detectBadge.textContent = 'Detected: Morse Code';
+        outputLabel.textContent = 'Decoded English Text';
+        currentTranslation = translateMorseToText(input);
+        outputText.textContent = currentTranslation;
+      } else {
+        currentInputMode = 'text';
+        detectBadge.textContent = 'Detected: Text';
+        outputLabel.textContent = 'Morse Code Output';
+        currentTranslation = translateTextToMorse(input);
+        outputText.textContent = currentTranslation;
+      }
+    }
 
-    document.getElementById('play').onclick = () => {
-      const morse = outputEl.textContent.trim() || inputEl.value.trim();
-      if (!morse) return;
-      blinkLight.style.display = 'inline-block';
-      playMorse(morse, () => blinkLight.style.display = 'none');
-    };
+    inputText.addEventListener('input', runTranslation);
 
-    function playMorse(seq, done) {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      let t = ctx.currentTime;
-      const parts = seq.split(' ');
-      parts.forEach(symbol => {
-        if (symbol === '/') { t += 0.7; return; }
-        for (let s of symbol) {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.frequency.value = 700;
-          const d = s === '.' ? 0.1 : 0.3;
-          gain.gain.setValueAtTime(0.2, t);
-          osc.start(t);
-          osc.stop(t + d);
-          t += d + 0.1;
+    // --- Audio Synthesis Timings & Engine ---
+    function getMorseTimeline(morseStr, wpm) {
+      const dotDuration = 1.2 / wpm;
+      const dashDuration = dotDuration * 3;
+      const symbolSpace = dotDuration;
+      const letterSpace = dotDuration * 3;
+      const wordSpace = dotDuration * 7;
+
+      let timeline = [];
+      let t = 0;
+
+      // Split by spaces or lines
+      const letters = morseStr.trim().split(/\s+/);
+      letters.forEach((letter, index) => {
+        if (letter === '/') {
+          t += wordSpace - letterSpace;
+          return;
         }
-        t += 0.3;
+
+        if (index > 0 && letters[index - 1] !== '/') {
+          t += letterSpace - symbolSpace;
+        }
+
+        for (let char of letter) {
+          if (char === '.' || char === '-') {
+            const duration = char === '.' ? dotDuration : dashDuration;
+            timeline.push({ time: t, duration: duration });
+            t += duration + symbolSpace;
+          }
+        }
       });
-      setTimeout(done, (t - ctx.currentTime) * 1000 + 300);
+
+      return { timeline, totalDuration: t + 0.3 };
     }
 
-    // --- Mode Switch ---
-    document.getElementById('modeToggle').onclick = () => {
-      document.body.classList.toggle('light-mode');
+    function stopAudio() {
+      // Clear timeouts
+      playbackTimeouts.forEach(clearTimeout);
+      playbackTimeouts = [];
+
+      // Stop source nodes
+      activeNodes.forEach(node => {
+        try { node.stop(); } catch(e) {}
+      });
+      activeNodes = [];
+
+      // Close Audio Context
+      if (audioCtx) {
+        try { audioCtx.close(); } catch(e) {}
+        audioCtx = null;
+      }
+
+      blinkLight.classList.remove('active');
+      statusText.textContent = 'Idle';
+    }
+
+    function playMorseCode() {
+      stopAudio();
+      
+      const morse = currentInputMode === 'text' ? currentTranslation : inputText.value.trim();
+      if (!morse) {
+        showToast('Please type something to translate and play!');
+        return;
+      }
+
+      const wpm = parseInt(wpmSlider.value);
+      const frequency = parseInt(freqSlider.value);
+      const volume = parseInt(volSlider.value) / 100;
+
+      const { timeline, totalDuration } = getMorseTimeline(morse, wpm);
+
+      // Create Web Audio Context
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const mainGain = audioCtx.createGain();
+      mainGain.gain.setValueAtTime(volume * 0.2, audioCtx.currentTime); // keep max output comfortable
+      mainGain.connect(audioCtx.destination);
+
+      statusText.textContent = 'Synthesizing...';
+
+      timeline.forEach(event => {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime + event.time);
+        
+        // Prevent clicking sounds by ramping volume envelope
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime + event.time);
+        gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + event.time + 0.005);
+        gainNode.gain.setValueAtTime(1, audioCtx.currentTime + event.time + event.duration - 0.005);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + event.time + event.duration);
+
+        osc.connect(gainNode);
+        gainNode.connect(mainGain);
+
+        osc.start(audioCtx.currentTime + event.time);
+        osc.stop(audioCtx.currentTime + event.time + event.duration);
+
+        activeNodes.push(osc);
+
+        // Sync LED flasher
+        const startTimeout = setTimeout(() => {
+          blinkLight.classList.add('active');
+          statusText.textContent = 'Transmitting...';
+        }, event.time * 1000);
+
+        const endTimeout = setTimeout(() => {
+          blinkLight.classList.remove('active');
+        }, (event.time + event.duration) * 1000);
+
+        playbackTimeouts.push(startTimeout, endTimeout);
+      });
+
+      const finishTimeout = setTimeout(() => {
+        statusText.textContent = 'Idle';
+        blinkLight.classList.remove('active');
+      }, totalDuration * 1000);
+
+      playbackTimeouts.push(finishTimeout);
+    }
+
+    playBtn.addEventListener('click', playMorseCode);
+    stopBtn.addEventListener('click', stopAudio);
+
+    // --- Offline WAV Exporter ---
+    function bufferToWav(buffer) {
+      let numOfChan = buffer.numberOfChannels,
+          length = buffer.length * numOfChan * 2 + 44,
+          bufferArr = new ArrayBuffer(length),
+          view = new DataView(bufferArr),
+          channels = [], i, sample,
+          offset = 0,
+          pos = 0;
+
+      // write WAV header
+      setUint32(0x46464952);                         // "RIFF"
+      setUint32(length - 8);                         // file length - 8
+      setUint32(0x45564157);                         // "WAVE"
+
+      setUint32(0x20746d66);                         // "fmt " chunk
+      setUint32(16);                                 // chunk length
+      setUint16(1);                                  // sample format (raw PCM)
+      setUint16(numOfChan);                          // channel count
+      setUint32(buffer.sampleRate);                  // sample rate
+      setUint32(buffer.sampleRate * 2 * numOfChan);  // byte rate
+      setUint16(numOfChan * 2);                      // block align
+      setUint16(16);                                 // bits per sample
+
+      setUint32(0x61746164);                         // "data" - chunk
+      setUint32(length - pos - 4);                   // chunk length
+
+      for(i=0; i<buffer.numberOfChannels; i++)
+        channels.push(buffer.getChannelData(i));
+
+      while(pos < length) {
+        for(i=0; i<numOfChan; i++) {
+          sample = Math.max(-1, Math.min(1, channels[i][offset]));
+          sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF);
+          view.setInt16(pos, sample, true);
+          pos += 2;
+        }
+        offset++;
+      }
+
+      return new Blob([bufferArr], {type: "audio/wav"});
+
+      function setUint16(data) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+      }
+
+      function setUint32(data) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+      }
+    }
+
+    function exportMorseWav() {
+      const morse = currentInputMode === 'text' ? currentTranslation : inputText.value.trim();
+      if (!morse) {
+        showToast('Please type something to export!');
+        return;
+      }
+
+      const wpm = parseInt(wpmSlider.value);
+      const frequency = parseInt(freqSlider.value);
+
+      const { timeline, totalDuration } = getMorseTimeline(morse, wpm);
+
+      const sampleRate = 44100;
+      const offlineCtx = new OfflineAudioContext(1, sampleRate * totalDuration, sampleRate);
+
+      timeline.forEach(event => {
+        const osc = offlineCtx.createOscillator();
+        const gainNode = offlineCtx.createGain();
+
+        osc.frequency.setValueAtTime(frequency, event.time);
+
+        gainNode.gain.setValueAtTime(0, event.time);
+        gainNode.gain.linearRampToValueAtTime(0.2, event.time + 0.005);
+        gainNode.gain.setValueAtTime(0.2, event.time + event.duration - 0.005);
+        gainNode.gain.linearRampToValueAtTime(0, event.time + event.duration);
+
+        osc.connect(gainNode);
+        gainNode.connect(offlineCtx.destination);
+
+        osc.start(event.time);
+        osc.stop(event.time + event.duration);
+      });
+
+      statusText.textContent = 'Generating WAV...';
+
+      offlineCtx.startRendering().then(renderedBuffer => {
+        const wavBlob = bufferToWav(renderedBuffer);
+        const url = URL.createObjectURL(wavBlob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `morseflix_${Date.now()}.wav`;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+
+        showToast('WAV downloaded successfully!');
+        statusText.textContent = 'Idle';
+      }).catch(err => {
+        console.error(err);
+        statusText.textContent = 'Export failed';
+        showToast('Failed to generate WAV.');
+      });
+    }
+
+    exportWavBtn.addEventListener('click', exportMorseWav);
+
+    // --- Action Handlers ---
+    clearBtn.addEventListener('click', () => {
+      inputText.value = '';
+      runTranslation();
+      stopAudio();
+      showToast('Workspace cleared!');
+    });
+
+    copyBtn.addEventListener('click', () => {
+      if (!currentTranslation) {
+        showToast('Nothing to copy!');
+        return;
+      }
+      navigator.clipboard.writeText(currentTranslation).then(() => {
+        showToast('Copied to clipboard!');
+      }).catch(err => {
+        showToast('Copy failed.');
+      });
+    });
+
+    // Save Translation to Log
+    function renderHistory() {
+      if (history.length === 0) {
+        historyList.innerHTML = `<div class="no-history">No saved translations.</div>`;
+        return;
+      }
+
+      historyList.innerHTML = history.map((item, idx) => `
+        <div class="history-item">
+          <div class="history-text" onclick="loadHistoryItem(${idx})">
+            <span class="history-orig">${item.orig}</span>
+            <span class="history-trans">${item.trans}</span>
+          </div>
+          <div class="history-actions">
+            <button class="history-btn" onclick="copyHistoryItem(${idx})" title="Copy translation">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+            <button class="history-btn" onclick="deleteHistoryItem(${idx})" title="Delete item">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    saveBtn.addEventListener('click', () => {
+      const orig = inputText.value.trim();
+      const trans = currentTranslation.trim();
+      if (!orig || !trans) {
+        showToast('Nothing to save!');
+        return;
+      }
+
+      // Prevent duplicate saving
+      if (history.length > 0 && history[0].orig === orig) {
+        showToast('Already saved!');
+        return;
+      }
+
+      history.unshift({ orig, trans });
+      if (history.length > 10) history.pop(); // limit to 10 logs
+      
+      localStorage.setItem('morseflix_history', JSON.stringify(history));
+      renderHistory();
+      showToast('Saved to history!');
+    });
+
+    window.copyHistoryItem = function(idx) {
+      navigator.clipboard.writeText(history[idx].trans).then(() => {
+        showToast('Copied saved translation!');
+      });
     };
 
-    // --- Animations ---
-    gsap.from("#title", {y:-100, opacity:0, duration:1.2, ease:"bounce"});
-    gsap.from(".converter-box", {opacity:0, scale:0.9, duration:1});
+    window.deleteHistoryItem = function(idx) {
+      history.splice(idx, 1);
+      localStorage.setItem('morseflix_history', JSON.stringify(history));
+      renderHistory();
+      showToast('Deleted log entry.');
+    };
+
+    window.loadHistoryItem = function(idx) {
+      inputText.value = history[idx].orig;
+      runTranslation();
+      showToast('Loaded into workspace!');
+    };
+
+    clearHistoryBtn.addEventListener('click', () => {
+      history = [];
+      localStorage.removeItem('morseflix_history');
+      renderHistory();
+      showToast('History log cleared.');
+    });
+
+    // --- Interactive Cheat Sheet ---
+    function renderCheatSheet(filter = '', tab = 'all') {
+      cheatGrid.innerHTML = '';
+      
+      Object.entries(morseMap).forEach(([char, code]) => {
+        if (char === ' ') return; // Skip space character representation
+
+        // Determine category
+        let category = 'symbols';
+        if (/[A-Z]/.test(char)) category = 'letters';
+        else if (/[0-9]/.test(char)) category = 'numbers';
+
+        // Filters
+        if (tab !== 'all' && category !== tab) return;
+        if (filter && !char.includes(filter.toUpperCase()) && !code.includes(filter)) return;
+
+        const card = document.createElement('div');
+        card.className = 'cheat-card';
+        card.onclick = () => insertCheatChar(char);
+        card.title = `Click to insert "${char}"`;
+        card.innerHTML = `
+          <span class="cheat-char">${char}</span>
+          <span class="cheat-morse">${code}</span>
+        `;
+        cheatGrid.appendChild(card);
+      });
+    }
+
+    function insertCheatChar(char) {
+      const start = inputText.selectionStart;
+      const end = inputText.selectionEnd;
+      const text = inputText.value;
+      
+      inputText.value = text.substring(0, start) + char + text.substring(end);
+      inputText.focus();
+      inputText.selectionStart = inputText.selectionEnd = start + char.length;
+      runTranslation();
+    }
+
+    // Filter dictionary
+    searchDict.addEventListener('input', (e) => {
+      const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+      renderCheatSheet(e.target.value, activeTab);
+    });
+
+    // Tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        renderCheatSheet(searchDict.value, e.target.dataset.tab);
+      });
+    });
+
+    // --- Theme Switcher ---
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('morseflix_theme', isLight ? 'light' : 'dark');
+      showToast(`Switched to ${isLight ? 'Light' : 'Dark'} Mode!`);
+    });
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('morseflix_theme');
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-mode');
+    }
+
+    // --- Slider UI Sync ---
+    wpmSlider.addEventListener('input', (e) => {
+      wpmVal.textContent = `${e.target.value} WPM`;
+    });
+    freqSlider.addEventListener('input', (e) => {
+      freqVal.textContent = `${e.target.value} Hz`;
+    });
+    volSlider.addEventListener('input', (e) => {
+      volVal.textContent = `${e.target.value}%`;
+    });
+
+    // --- Toast Notification Overlay ---
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      
+      gsap.killTweensOf(toast);
+      gsap.set(toast, { y: 50, opacity: 0 });
+      
+      gsap.to(toast, {
+        y: 0,
+        opacity: 1,
+        duration: 0.4,
+        ease: "power2.out",
+        onStart: () => { toast.style.pointerEvents = 'auto'; }
+      });
+
+      gsap.to(toast, {
+        y: 20,
+        opacity: 0,
+        delay: 2.2,
+        duration: 0.4,
+        ease: "power2.in",
+        onComplete: () => { toast.style.pointerEvents = 'none'; }
+      });
+    }
+
+    // --- Animations on Load ---
+    gsap.from(".logo", { y: -50, opacity: 0, duration: 1, ease: "back.out(1.7)" });
+    gsap.from("#translatorCard", { x: -80, opacity: 0, duration: 0.8, ease: "power2.out" });
+    gsap.from(".card:not(#translatorCard)", { x: 80, opacity: 0, duration: 0.8, stagger: 0.15, ease: "power2.out" });
+
+    // --- App Init ---
+    renderHistory();
+    renderCheatSheet();
   </script>
 </body>
 </html>
